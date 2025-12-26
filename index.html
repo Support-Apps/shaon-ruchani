@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שעון חכם רוחני</title>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Gveret Levin';
+            src: local('Gveret Levin');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --baby-pink: #FFD6E0;
+            --baby-pink-light: #FFF0F5;
+            --baby-pink-screen: #FFE8ED;
+            --gold: #D4AF37;
+            --gold-light: #F4E4BA;
+            --mint: #98D4BB;
+            --mint-light: #C5E8D8;
+        }
+
+        body {
+            font-family: 'Gveret Levin', 'Heebo', sans-serif;
+            background: linear-gradient(135deg, var(--baby-pink-light) 0%, #fff 50%, var(--mint-light) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            color: var(--gold);
+            text-shadow: 2px 2px 4px rgba(212, 175, 55, 0.3);
+            margin-bottom: 25px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .watch-container {
+            position: relative;
+            width: 280px;
+            height: 340px;
+        }
+
+        .watch-band-top, .watch-band-bottom {
+            position: absolute;
+            width: 100px;
+            height: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #e8c4d0 0%, var(--baby-pink) 50%, #e8c4d0 100%);
+        }
+
+        .watch-band-top {
+            top: 0;
+            border-radius: 15px 15px 5px 5px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .watch-band-bottom {
+            bottom: 0;
+            border-radius: 5px 5px 15px 15px;
+            box-shadow: inset 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        .band-holes {
+            position: absolute;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0;
+        }
+
+        .band-hole {
+            width: 20px;
+            height: 5px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 3px;
+        }
+
+        .watch-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            background: var(--gold);
+            border-radius: 45px;
+            padding: 10px;
+            box-shadow: 
+                0 12px 30px rgba(0,0,0,0.2),
+                inset 0 2px 3px rgba(255,255,255,0.3),
+                inset 0 -2px 3px rgba(0,0,0,0.1);
+        }
+
+        .watch-button {
+            position: absolute;
+            right: -12px;
+            width: 10px;
+            height: 35px;
+            background: var(--gold);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .watch-button.top { top: 55px; }
+        .watch-button.bottom { top: 100px; height: 20px; }
+
+        .watch-crown {
+            position: absolute;
+            right: -18px;
+            top: 75px;
+            width: 18px;
+            height: 28px;
+            background: var(--gold);
+            border-radius: 0 6px 6px 0;
+            box-shadow: 3px 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .watch-crown:hover {
+            transform: translateX(3px);
+        }
+
+        .watch-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, var(--baby-pink-screen) 0%, var(--baby-pink-light) 100%);
+            border-radius: 36px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+        }
+
+        .divine-light {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, 
+                rgba(244, 228, 186, 0.5) 0%, 
+                rgba(212, 175, 55, 0.3) 30%, 
+                transparent 70%);
+            opacity: 0;
+            transition: opacity 1s;
+            pointer-events: none;
+        }
+
+        .divine-light.active {
+            animation: divineGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes divineGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.1); }
+        }
+
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: var(--gold);
+            border-radius: 50%;
+            opacity: 0;
+            box-shadow: 0 0 8px var(--gold), 0 0 15px var(--gold-light);
+        }
+
+        .time-display {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 1px 1px 3px rgba(212, 175, 55, 0.4);
+            z-index: 10;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .date-display {
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 2px;
+            z-index: 10;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+            z-index: 10;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-icon {
+            font-size: 1.1em;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 0.6em;
+            color: #777;
+        }
+
+        .spiritual-message {
+            font-size: 0.7em;
+            color: var(--gold);
+            margin-top: 8px;
+            text-align: center;
+            padding: 0 8px;
+            z-index: 10;
+            min-height: 28px;
+            line-height: 1.3;
+        }
+
+        .battery-container {
+            width: 85%;
+            margin-top: 8px;
+            z-index: 10;
+        }
+
+        .battery-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #888;
+            font-size: 0.6em;
+            margin-bottom: 3px;
+        }
+
+        .battery-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        .battery-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--mint) 0%, var(--gold) 50%, var(--baby-pink) 100%);
+            border-radius: 5px;
+            transition: width 0.5s ease-out;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-family: inherit;
+            font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .control-btn.charge {
+            background: linear-gradient(145deg, var(--gold) 0%, #c9a227 100%);
+            color: white;
+        }
+
+        .control-btn.blessing {
+            background: linear-gradient(145deg, var(--mint) 0%, #7ac4a5 100%);
+            color: white;
+        }
+
+        .control-btn.reset {
+            background: linear-gradient(145deg, var(--baby-pink) 0%, #f0b8c4 100%);
+            color: #555;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .blessing-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            max-width: 90%;
+            width: 320px;
+            transition: transform 0.3s;
+            border: 3px solid var(--gold);
+        }
+
+        .blessing-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .blessing-popup h3 {
+            color: var(--gold);
+            margin-bottom: 12px;
+            font-size: 1.4em;
+        }
+
+        .blessing-popup p {
+            color: #333;
+            line-height: 1.7;
+            font-size: 1em;
+        }
+
+        .blessing-popup button {
+            margin-top: 18px;
+            padding: 10px 28px;
+            background: var(--mint);
+            border: none;
+            border-radius: 20px;
+            font-family: inherit;
+            font-size: 1em;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+        .blessing-popup button:hover {
+            transform: scale(1.05);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 999;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .charging-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--gold);
+            font-size: 1em;
+            text-shadow: 0 0 15px var(--gold);
+            opacity: 0;
+            z-index: 15;
+            text-align: center;
+            pointer-events: none;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 15px;
+        }
+
+        .charging-text.show {
+            animation: fadeInOut 2s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .hebrew-letters {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hebrew-letter {
+            position: absolute;
+            font-size: 1.2em;
+            color: var(--gold);
+            opacity: 0;
+            text-shadow: 0 0 8px var(--gold);
+        }
+
+        @keyframes floatLetter {
+            0% { opacity: 0; transform: translateY(30px) rotate(0deg); }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-80px) rotate(360deg); }
+        }
+
+        @keyframes sparkleAnim {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+
+        footer {
+            margin-top: 25px;
+            color: var(--gold);
+            font-size: 0.85em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div style="position: fixed; top: 10px; right: 15px; color: #e8a0b0; font-size: 1.1em;">בס"ד</div>
+    
+    <h1>✨ שעון חכם רוחני ✨</h1>
+
+    <div class="watch-container">
+        <div class="watch-band-top">
+            <div class="band-holes">
+                <div class="band-hole"></div>
+                <div class="band-hole"></div>
+                <div class="band-hole"></div>
+            </div>
+        </div>
+
+        <div class="watch-frame">
+            <div class="watch-button top"></div>
+            <div class="watch-button bottom"></div>
+            <div class="watch-crown" onclick="chargeWithLight()"></div>
+
+            <div class="watch-screen">
+                <div class="divine-light" id="divineLight"></div>
+                <div class="sparkles" id="sparkles"></div>
+                <div class="hebrew-letters" id="hebrewLetters"></div>
+                <div class="charging-text" id="chargingText">מתחבר לאור האין סוף...</div>
+
+                <div class="time-display" id="time">00:00</div>
+                <div class="date-display" id="date"></div>
+
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <span class="stat-icon">🙏</span>
+                        <span class="stat-value" id="prayerCount">0 תפילות</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">💫</span>
+                        <span class="stat-value" id="blessingCount">0 ברכות</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">❤️</span>
+                        <span class="stat-value" id="loveLevel">אהבה</span>
+                    </div>
+                </div>
+
+                <div class="spiritual-message" id="message">לחצי על הכפתור לטעינה רוחנית</div>
+
+                <div class="battery-container">
+                    <div class="battery-label">
+                        <span>☀️ אור עליון</span>
+                        <span id="batteryPercent">0%</span>
+                    </div>
+                    <div class="battery-bar">
+                        <div class="battery-fill" id="batteryFill"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="watch-band-bottom">
+            <div class="band-holes">
+                <div class="band-hole"></div>
+                <div class="band-hole"></div>
+                <div class="band-hole"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn charge" onclick="chargeWithLight()">⚡ הטען באור</button>
+        <button class="control-btn blessing" onclick="showBlessing()">🌟 קבל ברכה</button>
+        <button class="control-btn reset" onclick="doReset()">🔄 איפוס</button>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeBlessing()"></div>
+    <div class="blessing-popup" id="blessingPopup">
+        <h3>✡️ ברכה לך ✡️</h3>
+        <p id="blessingText"></p>
+        <button onclick="closeBlessing()">אמן 🙏</button>
+    </div>
+
+    <footer>
+        נוצר באהבה ובאמונה 💕
+    </footer>
+
+    <script>
+        // === RESET FUNCTION FIRST - חייב להיות ראשון! ===
+        function doReset() {
+            alert('מאפס את השעון הרוחני...');
+            
+            // Reset variables
+            batteryLevel = 0;
+            prayerCount = 0;
+            blessingCount = 0;
+            
+            // Update DOM directly
+            document.getElementById('batteryFill').style.width = '0%';
+            document.getElementById('batteryPercent').textContent = '0%';
+            document.getElementById('prayerCount').textContent = '0 תפילות';
+            document.getElementById('blessingCount').textContent = '0 ברכות';
+            document.getElementById('message').textContent = 'לחצי על הכפתור לטעינה רוחנית';
+            document.getElementById('divineLight').classList.remove('active');
+            
+            alert('השעון אופס בהצלחה!');
+        }
+
+        // === Variables ===
+        var batteryLevel = 0;
+        var prayerCount = 0;
+        var blessingCount = 0;
+        var isCharging = false;
+
+        var spiritualMessages = [
+            "אור האין סוף ממלא אותך",
+            "נשמתך מתחברת לשמיים",
+            "הברכה שורה עלייך",
+            "את מוקפת באהבה אלוקית",
+            "השכינה שורה עלייך",
+            "אור הקדושה מאיר בך",
+            "התפילה שלך עולה למעלה",
+            "הלב שלך מתמלא בשמחה",
+            "ה' אוהב אותך",
+            "את ברוכה מאת ה'"
+        ];
+
+        var blessings = [
+            "יברכך ה' וישמרך, יאר ה' פניו אליך ויחנך, ישא ה' פניו אליך וישם לך שלום",
+            "שיהיה לך יום מלא באור, אהבה ושמחה",
+            "שתזכי לראות ברכה בכל מעשה ידיך",
+            "שהשלום והשלווה ילוו אותך בכל צעד",
+            "שתמצאי את הטוב בכל יום ובכל רגע",
+            "שאור הנשמה שלך יאיר לכל סביבותיך",
+            "שתזכי לבריאות, אושר ופרנסה בשפע",
+            "שכל תפילותיך יתקבלו ברחמים",
+            "שתחושי תמיד את הנוכחות האלוקית בחייך",
+            "שהאהבה והחסד ילוו אותך כל ימי חייך"
+        ];
+
+        var hebrewLetters = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז', 'ח', 'ט', 'י', 'כ', 'ל', 'מ', 'נ', 'ס', 'ע', 'פ', 'צ', 'ק', 'ר', 'ש', 'ת'];
+
+        function updateTime() {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('time').textContent = hours + ':' + minutes;
+
+            var days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+            var months = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
+            var dayName = days[now.getDay()];
+            var date = now.getDate();
+            var month = months[now.getMonth()];
+            document.getElementById('date').textContent = 'יום ' + dayName + ', ' + date + ' ב' + month;
+        }
+
+        function updateBattery() {
+            document.getElementById('batteryFill').style.width = batteryLevel + '%';
+            document.getElementById('batteryPercent').textContent = batteryLevel + '%';
+        }
+
+        function createSparkle() {
+            var sparkles = document.getElementById('sparkles');
+            var sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animation = 'sparkleAnim ' + (1 + Math.random()) + 's ease-out forwards';
+            sparkles.appendChild(sparkle);
+            setTimeout(function() { sparkle.remove(); }, 2000);
+        }
+
+        function createFloatingLetter() {
+            var container = document.getElementById('hebrewLetters');
+            var letter = document.createElement('div');
+            letter.className = 'hebrew-letter';
+            letter.textContent = hebrewLetters[Math.floor(Math.random() * hebrewLetters.length)];
+            letter.style.left = (Math.random() * 80 + 10) + '%';
+            letter.style.bottom = '10%';
+            letter.style.animation = 'floatLetter 3s ease-out forwards';
+            container.appendChild(letter);
+            setTimeout(function() { letter.remove(); }, 3000);
+        }
+
+        function chargeWithLight() {
+            if (isCharging) return;
+            if (batteryLevel >= 100) {
+                document.getElementById('message').textContent = "השעון מלא באור! ✨";
+                return;
+            }
+
+            isCharging = true;
+            var divineLight = document.getElementById('divineLight');
+            var chargingText = document.getElementById('chargingText');
+
+            divineLight.classList.add('active');
+            chargingText.classList.add('show');
+
+            prayerCount++;
+            document.getElementById('prayerCount').textContent = prayerCount + ' תפילות';
+
+            var sparkleInterval = setInterval(createSparkle, 100);
+            var letterInterval = setInterval(createFloatingLetter, 300);
+
+            var chargeAmount = 0;
+            var targetCharge = Math.min(25, 100 - batteryLevel);
+
+            var chargeInterval = setInterval(function() {
+                if (chargeAmount < targetCharge) {
+                    chargeAmount++;
+                    batteryLevel++;
+                    updateBattery();
+                } else {
+                    clearInterval(chargeInterval);
+                    clearInterval(sparkleInterval);
+                    clearInterval(letterInterval);
+
+                    setTimeout(function() {
+                        chargingText.classList.remove('show');
+                        isCharging = false;
+
+                        var randomMessage = spiritualMessages[Math.floor(Math.random() * spiritualMessages.length)];
+                        document.getElementById('message').textContent = randomMessage;
+
+                        if (batteryLevel < 100) {
+                            divineLight.classList.remove('active');
+                        }
+                    }, 1000);
+                }
+            }, 80);
+        }
+
+        function showBlessing() {
+            blessingCount++;
+            document.getElementById('blessingCount').textContent = blessingCount + ' ברכות';
+
+            var randomBlessing = blessings[Math.floor(Math.random() * blessings.length)];
+            document.getElementById('blessingText').textContent = randomBlessing;
+
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('blessingPopup').classList.add('show');
+        }
+
+        function closeBlessing() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('blessingPopup').classList.remove('show');
+        }
+
+        // Initialize
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Ambient sparkles when fully charged
+        setInterval(function() {
+            if (batteryLevel >= 100) {
+                createSparkle();
+            }
+        }, 500);
+    </script>
+</body>
+</html>
